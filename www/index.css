@@ -1,0 +1,203 @@
+:root {
+    --primary: #6f5b2d;
+    --secondary: #161616;
+}
+
+body {
+    font-family: 'Helvetika Neue', Arial, sans-serif;
+    background: var(--secondary);
+
+}
+
+* {
+    user-select: none;
+}
+
+.btn {
+    padding: 31px 0;
+    text-align: center;
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 37px;
+}
+
+ul.shows {
+    margin: 0;
+    padding: 0;
+    min-width: 400px;
+    list-style: none;
+}
+
+ul.shows li div {
+    display: flex;
+    align-items: center;
+}
+
+ul.shows li div span {
+    flex-grow: 1;
+}
+
+ul.shows li h1 {
+    font-size: 25px;
+    margin: 0;
+    padding: 0;
+    color: var(--secondary);
+}
+
+ul.shows li h3 {
+    padding: 0;
+    margin: 0;
+    font-weight: 400;
+    color: var(--secondary);
+}
+
+ul.shows li {
+    background: var(--primary);
+    margin: 10px 0px;
+    padding: 15px;
+    box-shadow: 0px 8px 10px #00000030;
+    transition: all 0.3s;
+    border-radius: 5px;
+}
+
+ul.shows li.reload {
+    max-width: fit-content;
+    height: 32px;
+    float: right;
+    padding: 5px;
+    cursor: pointer;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+
+
+
+ul.shows li.reload svg {
+    transition: all 0.3s;
+    height: 30px;
+    width: 30px;
+    fill: var(--primary);
+}
+
+#add:hover, #reload:hover {
+    transform: rotate(-180deg);
+}
+
+.info-container {
+    display: flex;
+    justify-content: center;
+    min-width: 150px;
+}
+
+.hidden {
+    opacity: 0;
+}
+
+.lds-facebook {
+    display: inline-block;
+    /* margin: 0 auto; */
+    position: relative;
+    width: 64px;
+    height: 64px;
+    margin-top: 120px;
+}
+.lds-facebook div {
+    display: inline-block;
+    position: absolute;
+    left: 6px;
+    width: 13px;
+    background: var(--primary);
+    animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+.lds-facebook div:nth-child(1) {
+    left: 6px;
+    animation-delay: -0.24s;
+}
+.lds-facebook div:nth-child(2) {
+    left: 26px;
+    animation-delay: -0.12s;
+}
+.lds-facebook div:nth-child(3) {
+    left: 45px;
+    animation-delay: 0;
+}
+@keyframes lds-facebook {
+    0% {
+        top: 6px;
+        height: 51px;
+    }
+    50%, 100% {
+        top: 19px;
+        height: 26px;
+    }
+}
+
+.popup {background: #fff;padding: 20px 20px 59px 20px;}
+
+.popup-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input[type="text"] {
+    display: block;
+}
+
+.popup {background: var(--secondary);padding: 20px 20px 20px 20px;/* background-color: white; */border-radius: 8px;/* opacity: 0.9; *//* border: 5px solid #6f5b2dbf; */box-shadow: 0 17px 10px #00000047;}
+
+.popup {}
+
+.popup-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input[type="text"] {
+    display: block;
+    padding: 10px 0px;
+    text-align: center;
+    font-size: 20px;
+    /* box-shadow: 0 17px 8px #000; */
+    outline: none;
+    background-color: var(--primary);
+    border: none;
+}
+
+div.button {
+    color: var(--secondary);
+    display: block;
+    margin-top: 15px;
+    text-transform: uppercase;
+    padding: 11px 0;
+    background: var(--primary);
+    text-align: center;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.popup h3 {
+    color: var(--primary);
+    text-align: center;
+    padding: 0;
+    font-size: 29px;
+    margin: 0;
+    margin-bottom: 20px;
+}
+
+.d-none {
+    display: none;
+}

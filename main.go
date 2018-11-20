@@ -1,25 +1,56 @@
+//go:generate go run -tags generate gen.go
+
 package main
 
 import (
-	"TvShow/icon"
 	. "TvShow/types/episode"
 	. "TvShow/types/show"
 	"encoding/json"
 	"fmt"
-	"github.com/getlantern/systray"
-	"gopkg.in/toast.v1"
+	"github.com/zserge/lorca"
 	"io/ioutil"
+	"log"
+	"net"
 	"net/http"
-	"path/filepath"
 )
 
 var imdbLookup = "http://api.tvmaze.com/lookup/shows?imdb="
 
 func main() {
-	systray.Run(onReady, onExit)
+	ui, _ := lorca.New("", "", 500, 600)
+	defer ui.Close()
+	var ids []string
+	var shows []Show
 
-	// reader := bufio.NewReader(os.Stdin)
-	// reader.ReadLine()
+	// Bind Go function to be available in JS. Go function may be long-running and
+	// blocking - in JS it's represented with a Promise.
+	ui.Bind("start", func() { log.Println("UI is ready") })
+	ui.Bind("RenderTitle", func() string { return "Air Date" })
+	ui.Bind("AddShow", func(id string) {
+		ids = append(ids, id)
+	})
+	ui.Bind("RenderShows", func() []Show {
+		shows = load(ids)
+		return shows
+	})
+
+	// Load HTML.
+	// You may also use `data:text/html,<base64>` approach to load initial HTML,
+	// e.g: ui.Load("data:text/html," + url.PathEscape(html))
+
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ln.Close()
+	go http.Serve(ln, http.FileServer(FS))
+	ui.Load(fmt.Sprintf("http://%s", ln.Addr()))
+
+	// Start the system tray
+	// systray.Run(onReady, onExit)
+
+	// Wait for the browser window to be closed
+	<-ui.Done()
 }
 
 func setShowValues(url string, show *Show) {
@@ -59,34 +90,7 @@ func setShowEpisode(url string, show *Show) {
 	show.Episode = episode
 }
 
-func onReady() {
-	load()
-
-	systray.SetIcon(icon.Data)
-	systray.SetTitle("Next Aired")
-	systray.SetTooltip("Next Aired")
-
-	mReload := systray.AddMenuItem("Reload", "Check again!")
-	systray.AddSeparator()
-	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
-	go func() {
-		for {
-			select {
-			case <-mQuitOrig.ClickedCh:
-				systray.Quit()
-			case <-mReload.ClickedCh:
-				load()
-			}
-		}
-	}()
-}
-
-func onExit() {
-	// clean up here
-}
-
-func load() {
-	var ids []string
+func load(ids []string) []Show {
 	ids = append(ids, "tt7371666")
 	ids = append(ids, "tt1844624")
 	ids = append(ids, "tt0460681")
@@ -102,10 +106,13 @@ func load() {
 	for _, id := range ids {
 		var show Show
 		setShowValues(imdbLookup+id, &show)
+		show.Episode.TillAired = show.Episode.TimeLeft()
 		shows = append(shows, show)
 	}
 
-	for _, v := range shows {
+	return shows
+
+	/*for _, v := range shows {
 
 		var title, message string
 		send := false
@@ -132,10 +139,10 @@ func load() {
 				panic(err)
 			}
 		}
-	}
+	}*/
 }
 
-func toastNotification(title, message, appIcon string) toast.Notification {
+/*func toastNotification(title, message, appIcon string) toast.Notification {
 	// NOTE: a real appID is required since Windows 10 Fall Creator's Update,
 	// issue https://github.com/go-toast/toast/issues/9
 	appID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
@@ -164,4 +171,4 @@ func alert(title, message, appIcon, imdb, tvmaze string) error {
 	}
 	note.Audio = toast.Default
 	return note.Push()
-}
+}*/

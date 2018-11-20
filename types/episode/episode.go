@@ -6,12 +6,13 @@ import (
 )
 
 type Episode struct {
-	Id      int
-	Name    string
-	Number  int
-	Season  int
-	AirDate string
-	Url     string
+	Id        int
+	Name      string
+	Number    int
+	Season    int
+	AirDate   string
+	Url       string
+	TillAired string
 }
 
 func (e Episode) diff() (year, month, day int) {
@@ -44,10 +45,13 @@ func (e Episode) TimeLeft() string {
 	year, month, day := e.diff()
 
 	if year > 0 {
+		e.TillAired = fmt.Sprintf("%d Year/s, %d Month/s and %d Day/s", year, month, day)
 		return fmt.Sprintf("%d Year/s, %d Month/s and %d Day/s", year, month, day)
 	} else if month > 0 {
+		e.TillAired = fmt.Sprintf("%d Month/s and %d Day/s", month, day)
 		return fmt.Sprintf("%d Month/s and %d Day/s", month, day)
 	} else {
+		e.TillAired = fmt.Sprintf("%d Day/s", day)
 		return fmt.Sprintf("%d Day/s", day)
 	}
 }
