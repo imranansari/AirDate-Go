@@ -158,7 +158,10 @@
 </g>
 </svg>`;
             showsList.appendChild(li);
-            document.querySelector("#reload").addEventListener("click", () => location.reload())
+            document.querySelector("#reload").addEventListener("click", () => {
+                location.reload()
+                window.Reload()
+            })
             document.querySelector("#add").addEventListener("click", () => {
                 document.querySelector(".popup-wrapper").classList.remove("d-none")
             });

@@ -30,6 +30,12 @@ func main() {
 	// blocking - in JS it's represented with a Promise.
 	ui.Bind("start", func() { log.Println("UI is ready") })
 	ui.Bind("RenderTitle", func() string { return conf["title"].(string) })
+	ui.Bind("Reload", func() {
+		if v, err := conf["contextmenu"].(bool); v == false {
+			fmt.Printf("%Tt %v", v, err)
+			ui.Eval("window.addEventListener('contextmenu', e => { e.preventDefault(); });")
+		}
+	})
 	ui.Bind("AddShow", func(id string) {
 		ids = append(ids, id)
 		saveIds(ids)
