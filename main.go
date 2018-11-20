@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/zserge/lorca"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net"
@@ -20,6 +21,9 @@ func main() {
 	ui, _ := lorca.New("", "", 500, 600)
 	defer ui.Close()
 	var ids []string
+
+	getIds(&ids)
+
 	var shows []Show
 
 	// Bind Go function to be available in JS. Go function may be long-running and
@@ -28,6 +32,12 @@ func main() {
 	ui.Bind("RenderTitle", func() string { return "Air Date" })
 	ui.Bind("AddShow", func(id string) {
 		ids = append(ids, id)
+		saveIds(ids)
+	})
+	ui.Bind("DeleteShow", func(id string) {
+		fmt.Println(id)
+		ids = removeId(ids, id)
+		saveIds(ids)
 	})
 	ui.Bind("RenderShows", func() []Show {
 		shows = load(ids)
@@ -90,16 +100,39 @@ func setShowEpisode(url string, show *Show) {
 	show.Episode = episode
 }
 
+func getIds(list *[]string) {
+	yamlFile, err := ioutil.ReadFile("assets/shows.yaml")
+	if err != nil {
+		log.Printf("yamlFile.Get err   #%v ", err)
+	}
+	err = yaml.Unmarshal(yamlFile, list)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+	}
+
+}
+
+func saveIds(list []string) {
+	something, err := yaml.Marshal(list)
+	err = ioutil.WriteFile("assets/shows.yaml", something, 0)
+	if err != nil {
+		log.Printf("yamlFile.Get err   #%v ", err)
+	}
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+	}
+}
+
+func removeId(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
+
 func load(ids []string) []Show {
-	ids = append(ids, "tt7371666")
-	ids = append(ids, "tt1844624")
-	ids = append(ids, "tt0460681")
-	ids = append(ids, "tt6763664")
-	ids = append(ids, "tt7008682")
-	ids = append(ids, "tt0944947")
-	ids = append(ids, "tt7493974")
-	ids = append(ids, "tt3006802")
-	ids = append(ids, "tt3107288")
 
 	var shows []Show
 

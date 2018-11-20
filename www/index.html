@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>AirDate</title>
+    <link rel="icon" href="main.png">
     <link rel="stylesheet" href="index.css">
 </head>
 
@@ -38,7 +39,7 @@
         showsList.innerHTML = shows.map(show => {
             var showMarkUp = `<li id="${show.Externals.Imdb}" class="hidden"> <h1>${show.Name}</h1>`
             if (show.Episode.Name) {
-                showMarkUp += `<div> <h3>${show.Episode.Name} (S${show.Episode.Season}E${show.Episode.Number})</h3><span></span><h3>${show.Episode.TillAired}</h3></div>`
+                showMarkUp += `<div> <h3>${show.Episode.Name} (S${show.Episode.Season}E${show.Episode.Number})</h3><span></span><h3>${show.Episode.TillAired}</h3></div><span id="${show.Externals.Imdb}" class="delete">-</span>`
             }
             showMarkUp += `</li>`
             if (show.Episode.Name)   {
@@ -170,7 +171,14 @@
                 });
                 document.querySelector("#showID").value = ""
                 document.querySelector(".popup-wrapper").classList.add("d-none")
-            })
+            });
+            document.querySelectorAll(".delete").forEach(element => {
+               element.addEventListener("click", () => {
+                   window.DeleteShow(element.id).then(() => {
+                       element.parentElement.remove()
+                   });
+               });
+            });
             document.querySelector("#cancel").addEventListener("click", () => {
                 document.querySelector(".popup-wrapper").classList.add("d-none")
             })
@@ -179,9 +187,10 @@
 
     render()
 
-    window.addEventListener("contextmenu", e => {
-        e.preventDefault();
-    });
+    // window.addEventListener("contextmenu", e => {
+    //     e.preventDefault();
+    // });
+
     function recreateNode(el, withChildren) {
         if (withChildren) {
             el.parentNode.replaceChild(el.cloneNode(true), el);
