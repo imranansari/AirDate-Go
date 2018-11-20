@@ -15,9 +15,9 @@ import (
 	"net/http"
 )
 
-var imdbLookup = "http://api.tvmaze.com/lookup/shows?imdb="
-
 func main() {
+	conf := loadConf()
+
 	ui, _ := lorca.New("", "", 500, 600)
 	defer ui.Close()
 	var ids []string
@@ -29,7 +29,7 @@ func main() {
 	// Bind Go function to be available in JS. Go function may be long-running and
 	// blocking - in JS it's represented with a Promise.
 	ui.Bind("start", func() { log.Println("UI is ready") })
-	ui.Bind("RenderTitle", func() string { return "Air Date" })
+	ui.Bind("RenderTitle", func() string { return conf["title"].(string) })
 	ui.Bind("AddShow", func(id string) {
 		ids = append(ids, id)
 		saveIds(ids)
@@ -40,12 +40,12 @@ func main() {
 		saveIds(ids)
 	})
 	ui.Bind("RenderShows", func() []Show {
-		shows = load(ids)
+		shows = setValues(ids)
 		return shows
 	})
 
 	// Load HTML.
-	// You may also use `data:text/html,<base64>` approach to load initial HTML,
+	// You may also use `data:text/html,<base64>` approach to setValues initial HTML,
 	// e.g: ui.Load("data:text/html," + url.PathEscape(html))
 
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
@@ -56,8 +56,12 @@ func main() {
 	go http.Serve(ln, http.FileServer(FS))
 	ui.Load(fmt.Sprintf("http://%s", ln.Addr()))
 
-	// Start the system tray
-	// systray.Run(onReady, onExit)
+	ui.Eval("document.documentElement.style.setProperty('--primary', '" + fmt.Sprintf("%s", conf["primary"]) + "');")
+	ui.Eval("document.documentElement.style.setProperty('--secondary', '" + fmt.Sprintf("%s", conf["secondary"]) + "');")
+	if v, err := conf["contextmenu"].(bool); v == false {
+		fmt.Printf("%Tt %v", v, err)
+		ui.Eval("window.addEventListener('contextmenu', e => { e.preventDefault(); });")
+	}
 
 	// Wait for the browser window to be closed
 	<-ui.Done()
@@ -101,7 +105,7 @@ func setShowEpisode(url string, show *Show) {
 }
 
 func getIds(list *[]string) {
-	yamlFile, err := ioutil.ReadFile("assets/shows.yaml")
+	yamlFile, err := ioutil.ReadFile("shows.yaml")
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
 	}
@@ -109,12 +113,11 @@ func getIds(list *[]string) {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
-
 }
 
 func saveIds(list []string) {
 	something, err := yaml.Marshal(list)
-	err = ioutil.WriteFile("assets/shows.yaml", something, 0)
+	err = ioutil.WriteFile("shows.yaml", something, 0)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
 	}
@@ -132,8 +135,25 @@ func removeId(s []string, r string) []string {
 	return s
 }
 
-func load(ids []string) []Show {
+func loadConf() map[string]interface{} {
+	// conf := map{"primary":"#262612", "secondary": "#161616"}
+	conf := map[string]interface{}{}
 
+	yamlFile, err := ioutil.ReadFile("conf.yaml")
+
+	if err != nil {
+		log.Printf("yamlFile.Get err   #%v ", err)
+	}
+	err = yaml.Unmarshal(yamlFile, conf)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+	}
+
+	return conf
+}
+
+func setValues(ids []string) []Show {
+	var imdbLookup = "http://api.tvmaze.com/lookup/shows?imdb="
 	var shows []Show
 
 	for _, id := range ids {

@@ -187,10 +187,6 @@
 
     render()
 
-    // window.addEventListener("contextmenu", e => {
-    //     e.preventDefault();
-    // });
-
     function recreateNode(el, withChildren) {
         if (withChildren) {
             el.parentNode.replaceChild(el.cloneNode(true), el);
